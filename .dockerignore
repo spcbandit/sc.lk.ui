@@ -1,0 +1,11 @@
+**/.dockerignore
+**/.gitignore
+**/docker-compose*
+**/Dockerfile*
+**/.gitlab-ci.yml
+**/deploy*
+node_modules
+npm-debug*
+.nuxt
+README.md
+

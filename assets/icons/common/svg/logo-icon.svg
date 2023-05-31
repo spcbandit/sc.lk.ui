@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="303" height="335" viewBox="0 0 303 335">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #40afe3;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="Заливка_цветом_1" data-name="Заливка цветом 1" class="cls-1" d="M102,0H303V1L283,67H148l-20,67H61Zm93,134h67v1l-20,66H175ZM40,201h67L87,268H221v1l-20,66H0Z"/>
+</svg>

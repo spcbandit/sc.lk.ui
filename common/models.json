@@ -1,0 +1,12 @@
+/* AgentModel */,
+
+{
+  "agentId": "string",
+  "divisionId": "string",
+  "divisionName": "string",
+  "lastActivityStatus": "string", // Статусы по времени последнего доступа
+  "lastActivityDate": "string", // Дата последнего доступа
+  "host": "string",
+  "crateDate": "string" // Дата создания
+  "isActive": "string" // если агента можно отключать
+}

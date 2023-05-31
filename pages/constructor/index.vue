@@ -1,0 +1,1084 @@
+<template>
+  <div class="constructor-wrapper">
+    <!-- region Конструктор -->
+
+    <div
+      :style="`min-height: calc(100vh - ${formListHeight}px); max-height: calc(100vh - ${formListHeight}px);`"
+      class="constructor-block"
+    >
+      <!-- region Конструктор форм -->
+      <FormConstructor
+        :form="startForm"
+        :index-form="indexForm"
+        :form-style="processes.style"
+        @save="saveForm"
+        @setStyle="showFormSetting = true"
+        @addForm="addFormDialog = true"
+        @deleteAll="deleteAllForms"
+        @preview="previewForm = !previewForm"
+      />
+      <!-- endregion -->
+
+      <!--region Методы-->
+      <MethodsConstructor />
+      <!--endregion-->
+
+      <!-- region Модалки-->
+
+      <!-- region Настройки формы -->
+      <v-dialog v-model="showFormSetting" max-width="600">
+        <v-card class="dialog">
+          <div class="dialog__header">
+            <h2>Глобальные настройки формы</h2>
+            <v-btn icon @click="showFormSetting = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </div>
+          <div class="dialog__content">
+            <form
+              style="display: flex; flex-direction: column; row-gap: 15px"
+              action=""
+            >
+              <p class="mb-0">Настройки текста:</p>
+              <div class="d-flex align-center form-row">
+                <span
+                  class="form-row__label ml-auto"
+                  :style="`color: ${processes.style.compactFontColor}; font-size: ${processes.style.compactFontSize}px`"
+                >
+                  Мелкий текст:
+                </span>
+                <v-select
+                  v-model="processes.style.compactFontSize"
+                  :items="primitiveSetting.commonSetting.fontSize"
+                  style="max-width: 100px"
+                  dense
+                  suffix="px"
+                  outlined
+                  hide-details
+                  type="text"
+                  height="40"
+                  class="mt-0"
+                />
+                <v-menu
+                  v-model="colorPickerMenu.compactFontColor"
+                  left
+                  offset-y
+                >
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      v-bind="attrs"
+                      elevation="0"
+                      :color="processes.style.compactFontColor"
+                      v-on="on"
+                    >
+                      <v-row
+                        align="center"
+                        class="flex-column"
+                        justify="center"
+                      >
+                        <v-icon
+                          :color="
+                            getContrast50(processes.style.compactFontColor)
+                          "
+                        >
+                          mdi-format-color-text
+                        </v-icon>
+                        <v-sheet
+                          tile
+                          style="margin-top: -4px"
+                          height="4"
+                          width="26"
+                          :color="
+                            getContrast50(processes.style.compactFontColor)
+                          "
+                        />
+                      </v-row>
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-color-picker
+                      v-model="processes.style.compactFontColor"
+                      show-swatches
+                      hide-sliders
+                      hide-canvas
+                      hide-inputs
+                    />
+                  </v-card>
+                </v-menu>
+              </div>
+              <div class="d-flex align-center form-row">
+                <span
+                  class="form-row__label ml-auto"
+                  :style="`color: ${processes.style.regularFontColor}; font-size: ${processes.style.regularFontSize}px`"
+                >
+                  Средний текст:
+                </span>
+                <v-select
+                  v-model="processes.style.regularFontSize"
+                  :items="primitiveSetting.commonSetting.fontSize"
+                  style="max-width: 100px"
+                  suffix="px"
+                  dense
+                  outlined
+                  hide-details
+                  type="text"
+                  height="40"
+                  class="mt-0"
+                />
+                <v-menu
+                  v-model="colorPickerMenu.regularFontColor"
+                  left
+                  offset-y
+                >
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      v-bind="attrs"
+                      elevation="0"
+                      :color="processes.style.regularFontColor"
+                      v-on="on"
+                    >
+                      <v-row
+                        align="center"
+                        class="flex-column"
+                        justify="center"
+                      >
+                        <v-icon
+                          :color="
+                            getContrast50(processes.style.regularFontColor)
+                          "
+                        >
+                          mdi-format-color-text
+                        </v-icon>
+                        <v-sheet
+                          tile
+                          style="margin-top: -4px"
+                          height="4"
+                          width="26"
+                          :color="
+                            getContrast50(processes.style.regularFontColor)
+                          "
+                        />
+                      </v-row>
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-color-picker
+                      v-model="processes.style.regularFontColor"
+                      show-swatches
+                      hide-sliders
+                      hide-canvas
+                      hide-inputs
+                    />
+                  </v-card>
+                </v-menu>
+              </div>
+              <div class="d-flex align-center form-row">
+                <span
+                  class="form-row__label ml-auto"
+                  :style="`color: ${processes.style.strongFontColor}; font-size: ${processes.style.strongFontSize}px`"
+                >
+                  Крупный текст:
+                </span>
+                <v-select
+                  v-model="processes.style.strongFontSize"
+                  :items="primitiveSetting.commonSetting.fontSize"
+                  style="max-width: 100px"
+                  suffix="px"
+                  dense
+                  outlined
+                  hide-details
+                  type="text"
+                  height="40"
+                  class="mt-0"
+                />
+                <v-menu v-model="colorPickerMenu.strongFontColor" left offset-y>
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      v-bind="attrs"
+                      elevation="0"
+                      :color="processes.style.strongFontColor"
+                      v-on="on"
+                    >
+                      <v-row
+                        align="center"
+                        class="flex-column"
+                        justify="center"
+                      >
+                        <v-icon
+                          :color="
+                            getContrast50(processes.style.strongFontColor)
+                          "
+                        >
+                          mdi-format-color-text
+                        </v-icon>
+                        <v-sheet
+                          tile
+                          style="margin-top: -4px"
+                          height="4"
+                          width="26"
+                          :color="
+                            getContrast50(processes.style.strongFontColor)
+                          "
+                        />
+                      </v-row>
+                      <!--<v-icon-->
+                      <!--  :color="getContrast50(formStyle.compactFontColor)"-->
+                      <!--&gt;-->
+                      <!--  mdi-format-color-fill-->
+                      <!--</v-icon>-->
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-color-picker
+                      v-model="processes.style.strongFontColor"
+                      show-swatches
+                      hide-sliders
+                      hide-canvas
+                      hide-inputs
+                    />
+                  </v-card>
+                </v-menu>
+              </div>
+              <v-divider />
+              <p class="mb-0">Настройки кнопок:</p>
+              <div class="d-flex align-center form-row">
+                <div class="form-row__label mr-auto">
+                  <v-btn
+                    :tile="processes.style.cornerStyle === 'none'"
+                    :rounded="processes.style.cornerStyle === 'round'"
+                    depressed
+                    :color="processes.style.colorTheme"
+                  >
+                    <span
+                      :style="`color: ${getContrast50(
+                        processes.style.colorTheme
+                      )}`"
+                    >
+                      Кнопка
+                    </span>
+                  </v-btn>
+                </div>
+                <v-select
+                  v-model="processes.style.cornerStyle"
+                  style="max-width: 130px"
+                  :items="cornerStyle"
+                  :item-text="(item) => item.name"
+                  :item-value="(item) => item.value"
+                  dense
+                  outlined
+                  hide-details
+                  type="text"
+                  height="40"
+                  class="mt-0"
+                />
+                <v-menu v-model="colorPickerMenu.colorTheme" left offset-y>
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      v-ripple="false"
+                      height="40"
+                      depressed
+                      retain-focus-on-click
+                      :color="processes.style.colorTheme"
+                      dark
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <v-icon
+                        :color="getContrast50(processes.style.colorTheme)"
+                      >
+                        mdi-format-color-fill
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-color-picker
+                      v-model="processes.style.colorTheme"
+                      hide-canvas
+                      hide-inputs
+                      hide-sliders
+                      show-swatches
+                    />
+                  </v-card>
+                </v-menu>
+              </div>
+              <v-divider />
+              <div class="d-flex align-center form-row">
+                <span class="form-row__label mr-auto">Цвет фона формы:</span>
+                <v-menu
+                  v-model="colorPickerMenu.backgroundColor"
+                  :close-on-content-click="false"
+                  :nudge-width="200"
+                  :nudge-left="150"
+                  offset-y
+                >
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      height="40"
+                      elevation="0"
+                      style="border: 1px solid #d1d1d1"
+                      :color="processes.style.backgroundColor"
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <v-icon
+                        :color="getContrast50(processes.style.backgroundColor)"
+                      >
+                        mdi-format-color-fill
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-color-picker
+                      v-model="processes.style.backgroundColor"
+                      hide-canvas
+                      hide-inputs
+                      hide-sliders
+                      show-swatches
+                    />
+                  </v-card>
+                </v-menu>
+              </div>
+            </form>
+          </div>
+          <div class="dialog__footer">
+            <v-btn color="success" @click="showFormSetting = false">
+              Сохранить
+            </v-btn>
+            <v-btn color="error" @click="resetForm()">Сбросить</v-btn>
+          </div>
+        </v-card>
+      </v-dialog>
+      <!-- endregion -->
+      <!-- region Добавление новой формы -->
+      <v-dialog v-model="addFormDialog" max-width="600">
+        <v-card class="dialog">
+          <div class="dialog__header">
+            <h2>Добавить новую форму</h2>
+            <v-btn icon @click="addFormDialog = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </div>
+          <div class="dialog__content">
+            <form
+              style="display: flex; flex-direction: column; row-gap: 15px"
+              action=""
+            >
+              <v-text-field
+                v-model="referenceForm.form_name.name"
+                label="Название формы"
+              />
+              <v-text-field v-model="addingFormName" label="Name" />
+              <v-text-field
+                v-model="referenceForm.form_name.loaded"
+                label="Loaded"
+              />
+              <v-text-field
+                v-model="referenceForm.form_name.resume"
+                label="Resume"
+              />
+              <v-text-field
+                v-model="referenceForm.form_name.closed"
+                label="Closed"
+              />
+              <v-select v-model="referenceForm.form_name.type" label="type" />
+            </form>
+          </div>
+          <div class="dialog__footer">
+            <v-btn color="success" @click="addNewForm">Добавить форму</v-btn>
+            <v-btn color="info" @click="resetNewForm(false)">Сбросить</v-btn>
+            <v-btn color="error" @click="resetNewForm(true)">Закрыть</v-btn>
+          </div>
+        </v-card>
+      </v-dialog>
+      <!-- endregion -->
+
+      <!-- region Настройки формы -->
+      <v-navigation-drawer
+        v-model="previewForm"
+        width="40vw"
+        right
+        absolute
+        hide-overlay
+      >
+        <PreviewForm :form="startForm" />
+      </v-navigation-drawer>
+      <!--<v-dialog v-model="previewForm" max-width="600">
+        <v-card class="dialog">
+          <div class="dialog__header">
+            <h2>Глобальные настройки формы</h2>
+            <v-btn icon @click="previewForm = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </div>
+          <div class="dialog__content">Предпросмотр</div>
+          <div class="dialog__footer">
+            <v-btn color="success" @click="showFormSetting = false">
+              Сохранить
+            </v-btn>
+            <v-btn color="error" @click="resetForm()">Сбросить</v-btn>
+          </div>
+        </v-card>
+      </v-dialog>-->
+      <!-- endregion -->
+
+      <!-- endregion -->
+    </div>
+
+    <!-- endregion -->
+
+    <!-- region Формы -->
+    <SKFormList
+      :form-list="processes.forms"
+      @formSelect="changeForms"
+      @changeHeight="heightConstructor"
+    />
+    <!-- endregion -->
+  </div>
+</template>
+
+<script>
+/* eslint-disable */
+import FormConstructor from '@/components/FormConstructor'
+import SKFormList from '@/components/SKFormList'
+import SizeHandler from '@/components/UIComponents/SizeHandler'
+import {
+  referenceForm,
+  // referenceFormStyle,
+  referencePrimitivesSetting,
+} from '@/common/constants'
+import PreviewForm from '@/components/PreviewForm/PreviewForm'
+import MethodsConstructor from '@/components/MethodsConstructor'
+import {mapGetters} from "vuex";
+import DragNDrop from "@/components/VueDraggable/dragndrop";
+
+export default {
+  name: 'ConstructorIndexPage',
+  components: {
+    DragNDrop,
+    MethodsConstructor,
+    PreviewForm,
+    SizeHandler,
+    SKFormList,
+    FormConstructor,
+  },
+  layout: 'default',
+  transition: {
+    name: 'home',
+    mode: 'out-in',
+  },
+  data() {
+    return {
+      formListHeight: 240,
+      previewForm: false,
+      addingFormName: '',
+      referenceForm,
+      startForm: [],
+      addFormDialog: false,
+      primitiveSetting: referencePrimitivesSetting,
+      // formStyle: referenceFormStyle,
+      colorPickerMenu: {
+        compactFontColor: false,
+        regularFontColor: false,
+        strongFontColor: false,
+        background: false,
+        backgroundColor: false,
+      },
+      showFormSetting: false,
+      indexForm: null,
+      collapse: {
+        primitives: true,
+        formConstructor: true,
+        methods: false,
+      },
+      cornerStyle: [
+        {
+          name: 'Rounded',
+          value: 'round',
+        },
+        {
+          name: 'Crisp',
+          value: 'none',
+        },
+        {
+          name: 'Semi',
+          value: 'semi',
+        },
+      ],
+      methodsList: [
+        { name: 'show.alert' },
+        { name: 'show.toast' },
+        { name: 'show.repo' },
+        { name: 'net.get.tasks' },
+        { name: 'repo.handle' },
+        { name: 'repo.first' },
+      ],
+      methodsCanvas: [],
+      methodIdGlobal: 0,
+      IdGlobal: 123,
+      /* styles: {
+        Layout: 'container',
+        Separator: 'divider',
+        Label: 'text-field',
+        Button: 'button',
+      }, */
+      // eslint-disable-next-line vue/no-unused-properties
+      processes: {
+        info: {
+          id: 1,
+          name: 'Инвентаризация',
+          active: 'true',
+          url: 'http://10.0.172.2:5080/retail/hs/alpha/',
+          _url: 'http://10.10.1.50/rtl/hs/alpha/',
+          __url: 'http://195.54.41.203/rtl/hs/alpha/',
+          authorization: 'Basic aHR0cERhdGE6cWFaIzEyMzQ=',
+          start_form: 'start_form',
+        },
+        style: {
+          compactFontSize: 12,
+          compactFontColor: '#224d9b',
+          regularFontSize: 16,
+          regularFontColor: '#c91f1f',
+          strongFontSize: 26,
+          strongFontColor: '#008080',
+          cornerStyle: 'semi',
+          colorTheme: '#4d1c42',
+          background: '',
+          backgroundColor: '#ffffff',
+        },
+        forms: {
+          start_form: {
+            id: '1',
+            name: 'Задание на ревизию',
+            type: 'object',
+            object_type: 'HeaderData',
+            loaded: 'erp_01',
+            resume: 'reload_1',
+            closed: '',
+            scan_event: '',
+            elements: [
+              {
+                type: 'Layout',
+                id: 1,
+                grouping: 'vertical',
+                appearance: 'tablet',
+                alignment: 'left',
+                elements: [
+                  {
+                    type: 'Layout',
+                    grouping: 'horizontal',
+                    appearance: 'none',
+                    alignment: 'left',
+                    elements: [
+                      {
+                        type: 'Label',
+                        sourceData: 'number',
+                        label: 'Номер задания',
+                        labelPosition: 'bottom',
+                        alignment: 'left',
+                        defaultText: '-----',
+                        fontStyle: 'regular',
+                      },
+                      {
+                        type: 'Label',
+                        sourceData: 'date',
+                        label: 'Дата задания',
+                        labelPosition: 'bottom',
+                        alignment: 'left',
+                        defaultText: '-----',
+                        fontStyle: 'regular',
+                      },
+                    ],
+                  },
+                  {
+                    type: 'Label',
+                    sourceData: 'author',
+                    label: 'Автор',
+                    labelPosition: 'bottom',
+                    alignment: 'left',
+                    defaultText: '-----',
+                    fontStyle: 'regular',
+                  },
+                  {
+                    type: 'Label',
+                    sourceData: 'comment',
+                    label: 'Комментарий автора',
+                    labelPosition: 'bottom',
+                    alignment: 'left',
+                    defaultText: '-----',
+                    fontStyle: 'regular',
+                  },
+                ],
+              },
+              {
+                type: 'Separator',
+                id: 2,
+              },
+              {
+                type: 'Layout',
+                id: 3,
+                grouping: 'horizontal',
+                appearance: 'tablet',
+                alignment: 'center',
+                elements: [
+                  {
+                    type: 'Label',
+                    sourceData: '_summ',
+                    _sourceData: 'content().summ(quantity)',
+                    label: 'Марок в документе',
+                    labelPosition: 'bottom',
+                    alignment: 'center',
+                    defaultText: '0',
+                    fontStyle: 'regular',
+                  },
+                  {
+                    type: 'Label',
+                    sourceData: '_quantity',
+                    label: 'Строк в документе',
+                    labelPosition: 'bottom',
+                    alignment: 'center',
+                    defaultText: '0',
+                    fontStyle: 'regular',
+                  },
+                ],
+              },
+              {
+                type: 'Separator',
+                id: 4,
+              },
+              {
+                type: 'Button',
+                id: 5,
+                sourceData: '',
+                label: 'Продолжить ревизию',
+                click: 'open_form_2',
+              },
+              {
+                type: 'Button',
+                id: 6,
+                sourceData: '',
+                label: 'Завершить и выгрузить',
+                click: 'erp_upload_01',
+              },
+            ],
+            methods: {},
+          },
+          content_form: {
+            id: '2',
+            name: 'Собранные товары',
+            type: 'list',
+            object_type: 'ContentData',
+            loaded: '',
+            resume: 'reload_0',
+            _loaded: 'reload_0',
+            click: 'step_03',
+            closed: '',
+            annotation_scan_event:
+              'Возможно требуется использование препроцессора',
+            scan_event: 'scan_step_0',
+            elements: [
+              {
+                type: 'Layout',
+                grouping: 'vertical',
+                appearance: 'tablet',
+                alignment: 'left',
+                elements: [
+                  {
+                    type: 'Layout',
+                    grouping: 'horizontal',
+                    appearance: 'none',
+                    alignment: 'left',
+                    elements: [
+                      {
+                        type: 'Label',
+                        sourceData: 'index',
+                        label: 'Номер строки',
+                        labelPosition: 'none',
+                        alignment: 'left',
+                        defaultText: '-----',
+                        fontStyle: 'compact',
+                      },
+                      {
+                        type: 'Label',
+                        sourceData: 'product.description',
+                        label: 'Наименование',
+                        labelPosition: 'none',
+                        alignment: 'left',
+                        defaultText: '-----',
+                        fontStyle: 'compact',
+                      },
+                    ],
+                  },
+                  {
+                    type: 'Layout',
+                    grouping: 'horizontal',
+                    appearance: 'none',
+                    alignment: 'left',
+                    elements: [
+                      {
+                        type: 'Separator',
+                      },
+                      {
+                        type: 'Label',
+                        sourceData: '_summ_barcode',
+                        label: 'Марок',
+                        labelPosition: 'left',
+                        alignment: 'left',
+                        defaultText: '0',
+                        fontStyle: 'regular',
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+            methods: {
+              reload_0: {
+                operation: 'frame.reload',
+                parameters: [],
+                success: '',
+                failure: '',
+              },
+              step_03: {
+                annotation:
+                  '2-й параметр это ключ предиката, значением всегда является входящее uuid',
+                operation: 'show.frame',
+                parameters: ['row_modal_form', 'uuid'],
+                success: '',
+                failure: '',
+              },
+              info_01: {
+                operation: 'show.toast',
+                parameters: ['Нажатие на ячейку'],
+                success: '',
+                failure: '',
+              },
+              scan_step_0: {
+                annotation:
+                  'it.barcode - вызывает функцию поиска элемента / элементов по штрихкоду в текущей таблице',
+                operation: 'it.barcode',
+                parameters: ['EAN', 'Где искать - value'],
+                success: 'open_form_1',
+                failure: 'scan_add_line_1',
+              },
+              scan_add_line_1: {
+                annotation:
+                  'на входе barcode - добавляем новую строку в таблицу',
+                operation: 'it.barcode.append',
+                parameters: ['EAN', '0'],
+                success: 'open_form_1',
+                failure: 'error_01',
+              },
+              open_form_1: {
+                operation: 'show.frame',
+                parameters: ['row_modal_form', 'uuid'],
+                success: '',
+                failure: '',
+              },
+              error_01: {
+                operation: 'show.toast',
+                parameters: ['Данные по штрихкоду не найдены'],
+                success: '',
+                failure: '',
+              },
+            },
+          },
+          row_modal_form: {
+            id: '3',
+            name: 'Прозрачное окно',
+            type: 'modal',
+            object_type: 'ContentData',
+            loaded: 'reload_0',
+            resume: 'reload_0',
+            click: '',
+            closed: '',
+            scan_event: 'scan_add_line_1',
+            elements: [
+              {
+                type: 'Layout',
+                grouping: 'vertical',
+                appearance: 'tablet',
+                alignment: 'center',
+                elements: [
+                  {
+                    type: 'Label',
+                    sourceData: 'product.code',
+                    label: 'Код АП',
+                    labelPosition: 'bottom',
+                    alignment: 'center',
+                    defaultText: '-----',
+                    fontStyle: 'regular',
+                  },
+                  {
+                    type: 'Label',
+                    sourceData: 'product.description',
+                    label: 'Наименование',
+                    labelPosition: 'bottom',
+                    alignment: 'center',
+                    defaultText: '-----',
+                    fontStyle: 'regular',
+                  },
+                  {
+                    type: 'Label',
+                    sourceData: 'characteristic.description',
+                    label: 'Справка 2',
+                    labelPosition: 'bottom',
+                    alignment: 'center',
+                    defaultText: '-----',
+                    fontStyle: 'regular',
+                  },
+                ],
+              },
+              {
+                id: 'e329',
+                name: 'Separator',
+                type: 'Separator',
+              },
+              {
+                type: 'Layout',
+                grouping: 'vertical',
+                appearance: 'tablet',
+                alignment: 'center',
+                elements: [
+                  {
+                    type: 'Label',
+                    sourceData: '_summ_barcode',
+                    label: 'Количество',
+                    labelPosition: 'none',
+                    alignment: 'center',
+                    defaultText: '-----',
+                    fontStyle: 'strong',
+                  },
+                ],
+              },
+            ],
+            methods: {
+              reload_0: {
+                operation: 'frame.reload',
+                parameters: [],
+                success: '',
+                failure: '',
+              },
+              scan_add_line_1: {
+                annotation:
+                  'на входе barcode - добавляем новую строку в таблицу',
+                operation: 'it.barcode.append',
+                parameters: ['EGAIS_DM', '+1'],
+                success: 'reload_0',
+                failure: 'scan_error_01',
+              },
+              scan_error_01: {
+                operation: 'show.toast',
+                parameters: [
+                  'Штрихкод отсканирован ранее или имеет не корректный формат',
+                ],
+                success: '',
+                failure: '',
+              },
+            },
+          },
+        },
+      },
+    }
+  },
+  mounted() {
+    this.changeForms()
+  },
+  methods: {
+    deleteAllForms() {
+      this.processes.forms = {}
+    },
+    saveForm(args) {
+      const { form } = args
+      const { indexForm } = args
+      const processes = this.processes
+      processes.forms[indexForm].elements = form
+    },
+    changeForms(index = null) {
+      if (!index) {
+        this.indexForm = this.processes.info.start_form
+      } else {
+        this.indexForm = index
+      }
+      this.startForm = this.processes.forms[this.indexForm].elements
+    },
+    loggerList(evt) {
+      console.log('onChange', evt)
+    },
+    cloneComponent(evt) {
+      console.log('Clone', evt)
+      evt.id = `formElement__${this.methodIdGlobal++}`
+      return { ...evt }
+    },
+    delItem(item) {
+      this.temporaryForm = this.temporaryForm.filter((el) => item !== el)
+    },
+    resetForm() {
+      console.log('Reset')
+      this.processes.style = {
+        compactFontSize: 12,
+        compactFontColor: '#000000',
+        regularFontSize: 16,
+        regularFontColor: '#000000',
+        strongFontSize: 26,
+        strongFontColor: '#000000',
+        cornerStyle: 'semi',
+        colorTheme: '#0971c7',
+        background: '',
+        backgroundColor: '#ffffff',
+      }
+    },
+    getContrast50(hex) {
+      if (hex) {
+        const hexColor = hex.slice(1)
+        const r = parseInt(hexColor.substr(0, 2), 16)
+        const g = parseInt(hexColor.substr(2, 2), 16)
+        const b = parseInt(hexColor.substr(4, 2), 16)
+        const yiq = (r * 299 + g * 587 + b * 114) / 1000
+        return yiq >= 128 ? 'black' : 'white'
+      }
+    },
+    addNewForm() {
+      const addedForm = {}
+      addedForm[this.addingFormName] = {}
+      if (!this.processes.forms[this.addingFormName]) {
+        addedForm[this.addingFormName] = {
+          ...this.referenceForm.form_name,
+        }
+        this.processes.forms = {
+          ...this.processes.forms,
+          ...addedForm,
+        }
+        this.IdGlobal++
+        this.referenceForm = {
+          form_name: {
+            id: '', // Number
+            name: '',
+            type: '',
+            object_type: '',
+            loaded: '',
+            resume: '',
+            closed: '',
+            scan_event: '',
+            elements: [], // Array
+            methods: {},
+          },
+        }
+        this.addingFormName = ''
+        this.addFormDialog = false
+      } else {
+        console.log('объект уже есть')
+      }
+      // Object.assign(this.processes.forms, addedForm) -- не реактивно
+    },
+    resetNewForm(closeForm) {
+      this.referenceForm = {
+        form_name: {
+          id: '', // Number
+          name: '',
+          type: '',
+          object_type: '',
+          loaded: '',
+          resume: '',
+          closed: '',
+          scan_event: '',
+          elements: [], // Array
+          methods: {},
+        },
+      }
+      this.addingFormName = ''
+      if (closeForm) {
+        this.addFormDialog = false
+      }
+    },
+    heightConstructor(h) {
+      this.formListHeight = h + 60
+    },
+  },
+}
+</script>
+<style>
+.ghost {
+  opacity: 0.5;
+}
+.flip-list-move {
+  transition: transform 0.5s;
+}
+.no-move {
+  transition: transform 0s;
+}
+</style>
+
+<style scoped lang="scss">
+.constructor-block {
+  display: flex;
+  flex: 1 1;
+}
+
+.methods-constructor-wrapper {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  align-content: stretch;
+  flex: 1 1 100%;
+}
+.methods-constructor-block {
+  align-items: stretch;
+  justify-content: stretch;
+  align-content: stretch;
+  position: relative;
+  display: flex;
+  flex: 1 1;
+}
+.methods-list-wrapper {
+  display: flex;
+}
+.methods-list {
+  display: flex;
+  flex-direction: column;
+  row-gap: 4px;
+  flex: 0 1;
+  width: 240px;
+  min-width: 240px;
+  padding: 24px 24px 24px 0;
+}
+
+.tools-button {
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  background-color: #f37759;
+  border-radius: 3px;
+  padding: 5px 10px 5px 10px;
+}
+.method-item {
+  border-radius: 999px;
+  display: flex;
+  column-gap: 5px;
+  align-self: flex-start;
+  flex: 0 1;
+  padding: 6px 14px 6px 10px;
+  background-color: #ddd;
+  cursor: grab;
+  font-size: 14px;
+  font-weight: 600;
+
+  & img {
+    opacity: 0.5;
+  }
+}
+.collapse-block {
+  padding: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  width: 0 !important;
+  overflow: hidden;
+}
+
+.form-row {
+  column-gap: 15px;
+  &__label {
+    flex: 1 1;
+  }
+}
+</style>

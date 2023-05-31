@@ -1,0 +1,504 @@
+{
+  "Header": {
+    "Version": 12,
+    "Signature": ""
+  },
+  "Body": {
+    "sign": {
+      "deviceId": "ScannerIdTest",
+      "expiry": "2022-12-12"
+    },
+    "processes": [
+      {
+        "info": {
+          "id": "1",
+          "name": "Инвентаризация",
+          "active": "true",
+          "url": "http://10.0.172.2:5080/retail/hs/alpha/",
+          "_url": "http://10.10.1.50/rtl/hs/alpha/",
+          "_url": "http://195.54.41.203/rtl/hs/alpha/",
+          "authorization": "Basic aHR0cERhdGE6cWFaIzEyMzQ=",
+          "start_form": "start_form"
+        },
+        "style": {
+          "compactFontSize": 12,
+          "compactFontColor": "#000000",
+          "regularFontSize": 16,
+          "regularFontColor": "#000000",
+          "strongFontSize": 26,
+          "strongFontColor": "#008080",
+          "cornerStyle": "semi",
+          "colorTheme": "#008080",
+          "background": "",
+          "backgroundColor": "#4d008080"
+        },
+        "forms": {
+          "start_form": {
+            "id": "1",
+            "name": "Задание на ревизию",
+            "type": "object",
+            "object_type": "HeaderData",
+            "loaded": "erp_01",
+            "resume": "reload_1",
+            "closed": "",
+            "scan_event": "",
+            "elements": [
+              {
+                "type": "Layout",
+                "grouping": "vertical",
+                "appearance": "tablet",
+                "alignment": "left",
+                "elements": [
+                  {
+                    "type": "Layout",
+                    "grouping": "horizontal",
+                    "appearance": "none",
+                    "alignment": "left",
+                    "elements": [
+                      {
+                        "type": "Label",
+                        "sourceData": "number",
+                        "label": "Номер задания",
+                        "labelPosition": "bottom",
+                        "alignment": "left",
+                        "defaultText": "-----",
+                        "fontStyle": "regular"
+                      },
+                      {
+                        "type": "Label",
+                        "sourceData": "date",
+                        "label": "Дата задания",
+                        "labelPosition": "bottom",
+                        "alignment": "left",
+                        "defaultText": "-----",
+                        "fontStyle": "regular"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Label",
+                    "sourceData": "author",
+                    "label": "Автор",
+                    "labelPosition": "bottom",
+                    "alignment": "left",
+                    "defaultText": "-----",
+                    "fontStyle": "regular"
+                  },
+                  {
+                    "type": "Label",
+                    "sourceData": "comment",
+                    "label": "Комментарий автора",
+                    "labelPosition": "bottom",
+                    "alignment": "left",
+                    "defaultText": "-----",
+                    "fontStyle": "regular"
+                  }
+                ]
+              },
+              {
+                "type": "Separator"
+              },
+              {
+                "type": "Layout",
+                "grouping": "horizontal",
+                "appearance": "tablet",
+                "alignment": "center",
+                "elements": [
+                  {
+                    "type": "Label",
+                    "sourceData": "_summ",
+                    "_sourceData": "content().summ(quantity)",
+                    "label": "Марок в документе",
+                    "labelPosition": "bottom",
+                    "alignment": "center",
+                    "defaultText": "0",
+                    "fontStyle": "regular"
+                  },
+                  {
+                    "type": "Label",
+                    "sourceData": "_quantity",
+                    "label": "Строк в документе",
+                    "labelPosition": "bottom",
+                    "alignment": "center",
+                    "defaultText": "0",
+                    "fontStyle": "regular"
+                  }
+                ]
+              },
+              {
+                "type": "Separator"
+              },
+              {
+                "type": "Button",
+                "sourceData": "",
+                "label": "Продолжить ревизию",
+                "click": "open_form_2"
+              },
+              {
+                "type": "Button",
+                "sourceData": "",
+                "label": "Завершить и выгрузить",
+                "click": "erp_upload_01"
+              }
+            ],
+            "methods": {
+              "erp_upload_01": {
+                "operation": "show.alert",
+                "parameters": [
+                  "Выгрузка результатов в 1С",
+                  "Продолжить"
+                ],
+                "success": "erp_upload_02",
+                "failure": ""
+              },
+              "erp_upload_02": {
+                "operation": "show.toast",
+                "parameters": ["Запуск выгрузки документа"],
+                "success": "erp_upload_03",
+                "failure": ""
+              },
+              "erp_upload_03": {
+                "operation": "net.put.task",
+                "parameters": ["inventory"],
+                "success": "success_toast",
+                "failure": "error_01"
+              },
+              "success_toast": {
+                "operation": "show.toast",
+                "parameters": ["Выгрузка успешно завершена"],
+                "success": "",
+                "failure": ""
+              },
+              "erp_01": {
+                "operation": "net.get.tasks",
+                "parameters": ["inventory"],
+                "success": "erp_03",
+                "failure": "error_01"
+              },
+              "erp_02": {
+                "operation": "show.alert",
+                "parameters": [
+                  "В товароучетной системе есть новые данные для бизнес-процесса.",
+                  "Загрузить обновление"
+                ],
+                "success": "erp_03",
+                "failure": "erp_04"
+              },
+              "erp_03": {
+                "operation": "repo.handle",
+                "parameters": [],
+                "success": "erp_04",
+                "failure": "error_01"
+              },
+              "erp_04": {
+                "operation": "repo.first",
+                "parameters": ["Inventory"],
+                "success": "",
+                "failure": ""
+              },
+              "error_01": {
+                "operation": "show.toast",
+                "parameters": [],
+                "success": "",
+                "failure": ""
+              },
+              "reload_1": {
+                "operation": "frame.reload",
+                "parameters": [],
+                "success": "",
+                "failure": ""
+              },
+              "open_form_2": {
+                "operation": "show.frame",
+                "parameters": [
+                  "content_form",
+                  "owner.uuid"
+                ],
+                "success": "",
+                "failure": ""
+              },
+              "open_modal_form_1": {
+                "operation": "test_scan",
+                "parameters": [
+                  "modal_form_1"
+                ],
+                "success": "",
+                "failure": ""
+              }
+            }
+          },
+          "content_form":{
+            "id": "2",
+            "name": "Собранные товары",
+            "type": "list",
+            "object_type": "ContentData",
+            "loaded": "",
+            "resume": "reload_0",
+            "_loaded": "reload_0",
+            "click": "step_03",
+            "closed": "",
+            "annotation_scan_event": "Возможно требуется использование препроцессора",
+            "scan_event": "scan_step_0",
+            "elements": [
+              {
+                "type": "Layout",
+                "grouping": "vertical",
+                "appearance": "tablet",
+                "alignment": "left",
+                "elements": [
+                  {
+                    "type": "Layout",
+                    "grouping": "horizontal",
+                    "appearance": "none",
+                    "alignment": "left",
+                    "elements": [
+                      {
+                        "type": "Label",
+                        "sourceData": "index",
+                        "label": "Номер строки",
+                        "labelPosition": "none",
+                        "alignment": "left",
+                        "defaultText": "-----",
+                        "fontStyle": "compact"
+                      },
+                      {
+                        "type": "Label",
+                        "sourceData": "product.description",
+                        "label": "Наименование",
+                        "labelPosition": "none",
+                        "alignment": "left",
+                        "defaultText": "-----",
+                        "fontStyle": "compact"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Layout",
+                    "grouping": "horizontal",
+                    "appearance": "none",
+                    "alignment": "left",
+                    "elements": [
+                      {
+                        "type": "Separator"
+                      },
+                      {
+                        "type": "Label",
+                        "sourceData": "_summ_barcode",
+                        "label": "Марок",
+                        "labelPosition": "left",
+                        "alignment": "left",
+                        "defaultText": "0",
+                        "fontStyle": "regular"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "methods": {
+              "reload_0": {
+                "operation": "frame.reload",
+                "parameters": [],
+                "success": "",
+                "failure": ""
+              },
+              "step_03": {
+                "annotation": "2-й параметр это ключ предиката, значением всегда является входящее uuid",
+                "operation": "show.frame",
+                "parameters": [
+                  "row_modal_form",
+                  "uuid"
+                ],
+                "success": "",
+                "failure": ""
+              },
+              "info_01": {
+                "operation": "show.toast",
+                "parameters": ["Нажатие на ячейку"],
+                "success": "",
+                "failure": ""
+              },
+              "scan_step_0": {
+                "annotation": "it.barcode - вызывает функцию поиска элемента / элементов по штрихкоду в текущей таблице",
+                "operation": "it.barcode",
+                "parameters": [
+                  "EAN",
+                  "Где искать - value"
+                ],
+                "success": "open_form_1",
+                "failure": "scan_add_line_1"
+              },
+              "scan_add_line_1": {
+                "annotation": "на входе barcode - добавляем новую строку в таблицу",
+                "operation": "it.barcode.append",
+                "parameters": [
+                  "EAN",
+                  "0"
+                ],
+                "success": "open_form_1",
+                "failure": "error_01"
+              },
+              "open_form_1": {
+                "operation": "show.frame",
+                "parameters": [
+                  "row_modal_form",
+                  "uuid"
+                ],
+                "success": "",
+                "failure": ""
+              },
+              "error_01": {
+                "operation": "show.toast",
+                "parameters": ["Данные по штрихкоду не найдены"],
+                "success": "",
+                "failure": ""
+              }
+            }
+          },
+          "row_modal_form":{
+            "id": "2",
+            "name": "Прозрачное окно",
+            "type": "modal",
+            "object_type": "ContentData",
+            "loaded": "reload_0",
+            "resume": "reload_0",
+            "click": "",
+            "closed": "",
+            "scan_event": "scan_add_line_1",
+            "elements": [
+              {
+                "type": "Layout",
+                "grouping": "vertical",
+                "appearance": "tablet",
+                "alignment": "center",
+                "elements": [
+                  {
+                    "type": "Label",
+                    "sourceData": "product.code",
+                    "label": "Код АП",
+                    "labelPosition": "bottom",
+                    "alignment": "center",
+                    "defaultText": "-----",
+                    "fontStyle": "regular"
+                  },
+                  {
+                    "type": "Label",
+                    "sourceData": "product.description",
+                    "label": "Наименование",
+                    "labelPosition": "bottom",
+                    "alignment": "center",
+                    "defaultText": "-----",
+                    "fontStyle": "regular"
+                  },
+                  {
+                    "type": "Label",
+                    "sourceData": "characteristic.description",
+                    "label": "Справка 2",
+                    "labelPosition": "bottom",
+                    "alignment": "center",
+                    "defaultText": "-----",
+                    "fontStyle": "regular"
+                  }
+                ]
+              },
+              {
+                "id": "e329",
+                "name": "Separator",
+                "type": "Separator"
+              },
+              {
+                "type": "Layout",
+                "grouping": "vertical",
+                "appearance": "tablet",
+                "alignment": "center",
+                "elements": [
+                  {
+                    "type": "Label",
+                    "sourceData": "_summ_barcode",
+                    "label": "Количество",
+                    "labelPosition": "none",
+                    "alignment": "center",
+                    "defaultText": "-----",
+                    "fontStyle": "strong"
+                  }
+                ]
+              }
+            ],
+            "methods": {
+              "reload_0": {
+                "operation": "frame.reload",
+                "parameters": [],
+                "success": "",
+                "failure": ""
+              },
+              "scan_add_line_1": {
+                "annotation": "на входе barcode - добавляем новую строку в таблицу",
+                "operation": "it.barcode.append",
+                "parameters": [
+                  "EGAIS_DM",
+                  "+1"
+                ],
+                "success": "reload_0",
+                "failure": "scan_error_01"
+              },
+              "scan_error_01": {
+                "operation": "show.toast",
+                "parameters": ["Штрихкод отсканирован ранее или имеет не корректный формат"],
+                "success": "",
+                "failure": ""
+              }
+            }
+          }
+        }
+      },
+      {
+        "info": {
+          "id": "2",
+          "name": "Контроль цен",
+          "active": "true",
+          "url": "http://10.0.172.2:5080/retail/hs/alpha/",
+          "_url": "http://10.10.1.50/rtl/hs/alpha/",
+          "_url": "http://195.54.41.203/rtl/hs/alpha/",
+          "authorization": "Basic aHR0cERhdGE6cWFaIzEyMzQ=",
+          "start_form": "start_form"
+        }
+      },
+      {
+        "info": {
+          "id": "3",
+          "name": "Алко приемка",
+          "active": "true",
+          "url": "http://10.0.172.2:5080/retail/hs/alpha/",
+          "_url": "http://10.10.1.50/rtl/hs/alpha/",
+          "_url": "http://195.54.41.203/rtl/hs/alpha/",
+          "authorization": "Basic aHR0cERhdGE6cWFaIzEyMzQ=",
+          "start_form": "start_form"
+        }
+      },
+      {
+        "info": {
+          "id": "31",
+          "name": "Еще какой-то режим",
+          "active": "true",
+          "url": "http://10.0.172.2:5080/retail/hs/alpha/",
+          "_url": "http://10.10.1.50/rtl/hs/alpha/",
+          "_url": "http://195.54.41.203/rtl/hs/alpha/",
+          "authorization": "Basic aHR0cERhdGE6cWFaIzEyMzQ=",
+          "start_form": "start_form"
+        }
+      },
+      {
+        "info": {
+          "id": "32",
+          "name": "И еще бизнес-процесс",
+          "active": "true",
+          "url": "http://10.0.172.2:5080/retail/hs/alpha/",
+          "_url": "http://10.10.1.50/rtl/hs/alpha/",
+          "_url": "http://195.54.41.203/rtl/hs/alpha/",
+          "authorization": "Basic aHR0cERhdGE6cWFaIzEyMzQ=",
+          "start_form": "start_form"
+        }
+      }
+    ]
+  }
+}

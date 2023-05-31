@@ -1,0 +1,23 @@
+.main-layout {
+  display: flex;
+  flex: 1 1;
+  height: 100vh;
+  flex-direction: column;
+  //background-color: #faf9fb;
+}
+
+.main-menu {
+  &__link {
+    font-size: 14px;
+    //text-transform: uppercase;
+    //letter-spacing: 0.5px!important;
+    font-weight: 500;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+
+    &--active {
+      color: white !important;
+      opacity: .65 !important;
+    }
+  }
+}

@@ -1,0 +1,177 @@
+stages:
+  - build
+  - deploy
+
+include: 
+  - local: '/templates/build_tpl.yml'
+  - local: '/templates/deploy_tpl.yml'
+
+#build
+
+dev:build:
+  stage: build
+  image: docker:dind
+  variables:
+    PROJECT_NAME: SCLKUIFRONT
+    DOCKER_URL: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_NAME} 
+    PROJECT_DOMAIN: dev-front.it.scancity.ru
+    PROJECT_CORS_DOMAIN: dev-back.it.scancity.ru
+    BACKEND_URL: https://dev-back.it.scancity.ru
+    LINK_URL: http://dev-front.it.scancity.ru
+  extends:
+    - .build_tpl
+  only:
+    - develop
+
+test:build:
+  stage: build
+  image: docker:dind
+  variables:
+    PROJECT_NAME: SCLKUIFRONT
+    DOCKER_URL: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_NAME} 
+    PROJECT_DOMAIN: test-front.it.scancity.ru
+    PROJECT_CORS_DOMAIN: test-back.it.scancity.ru
+    BACKEND_URL: https://test-back.it.scancity.ru
+    LINK_URL: http://test-front.it.scancity.ru
+    ENVFILE: .env.test
+  extends:
+    - .build_tpl
+  only:
+    - main
+
+.test:nginx:build:
+  stage: build
+  only:
+    - main
+  image: docker:dind
+  variables:
+    PROJECT_NAME: SCLKUIFRONT
+    DOCKER_URL: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_NAME}-nginx
+    PROJECT_DOMAIN: test-front.it.scancity.ru
+  before_script:
+  - docker login -u ${CI_REGISTRY_USER} -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+  script:
+    - docker build --no-cache --pull -t ${DOCKER_URL}:${CI_PIPELINE_ID} -f Dockerfile.nginx .
+    - docker push ${DOCKER_URL}:${CI_PIPELINE_ID}
+    - docker rmi ${DOCKER_URL}:${CI_PIPELINE_ID} || true
+  tags:
+    - runner-docker
+
+
+prod:build:
+  stage: build
+  image: docker:dind
+  variables:
+    PROJECT_NAME: SCLKUIFRONT
+    DOCKER_URL: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_NAME} 
+    PROJECT_DOMAIN: ctsoft-e.ru
+    PROJECT_CORS_DOMAIN: back.ctsoft-e.ru
+    BACKEND_URL: https://back.ctsoft-e.ru
+    MSILINK_URL: 'https://storage.yandexcloud.net/demo.ctsoft-e.ru/ScanCity%20Agent%20Installer(demo).msi'
+    APKLINK_URL: 'https://storage.yandexcloud.net/prod-front.it.scancity.ru/CTsoft.ENTERPRiSE.apk'
+    ENVFILE: .env.prod
+  extends:
+    - .build_tpl
+  only:
+    - prod-release
+
+demo:build:
+  stage: build
+  image: docker:dind
+  variables:
+    PROJECT_NAME: SCLKUIFRONT
+    DOCKER_URL: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_NAME} 
+    PROJECT_DOMAIN: demo.ctsoft-e.ru
+    PROJECT_CORS_DOMAIN: back.demo.ctsoft-e.ru
+    ENVFILE: .env.demo
+  extends:
+    - .build_tpl
+  only:
+    - demo
+
+#deploy
+
+dev:deploy:
+  stage: deploy
+  image: docker:dind
+  variables:
+    SSH_URL: ${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}
+    SSH_PRIVATE_KEY: ${DEPLOY_PRIVATE_KEY}
+    SSH_PORT: ${DEPLOY_SSH_PORT}
+    DEPLOY_DIR: /tmp/${CI_COMMIT_SHORT_SHA}/
+    PROJECT_DOMAIN: dev-front.it.scancity.ru
+    PROJECT_CORS_DOMAIN: dev-back.it.scancity.ru
+    PROJECT_NAME: SCLKUIFRONT
+    DOCKER_URL: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_NAME} 
+    BACKEND_URL: https://test-back.it.scancity.ru
+    LINK_URL: http://test-front.it.scancity.ru
+  extends:
+    - .deploy_tpl
+  only:
+    - develop
+
+test:deploy:
+  stage: deploy
+  image: docker:dind
+  environment:
+    name: test
+  variables:
+    SSH_URL: ${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}
+    SSH_PRIVATE_KEY: ${DEPLOY_PRIVATE_KEY}
+    SSH_PORT: ${DEPLOY_SSH_PORT}
+    DEPLOY_DIR: /tmp/${CI_COMMIT_SHORT_SHA}/
+    PROJECT_DOMAIN: test-front.it.scancity.ru
+    PROJECT_CORS_DOMAIN: test-back.it.scancity.ru
+    PROJECT_NAME: SCLKUIFRONT
+    DOCKER_URL: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_NAME}
+    BACKEND_URL: https://test-back.it.scancity.ru
+    LINK_URL: http://test-front.it.scancity.ru
+    ENVFILE: .env.test
+  extends:
+    - .deploy_tpl
+  only:
+    - main
+
+prod:deploy:
+  stage: deploy
+  image: docker:dind
+  environment:
+    name: prod
+  variables:
+    SSH_URL: ${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}
+    SSH_PRIVATE_KEY: ${DEPLOY_PRIVATE_KEY}
+    SSH_PORT: ${DEPLOY_SSH_PORT}
+    DEPLOY_DIR: /tmp/${CI_COMMIT_SHORT_SHA}/
+    PROJECT_DOMAIN: ctsoft-e.ru
+    PROJECT_CORS_DOMAIN: back.ctsoft-e.ru
+    PROJECT_NAME: SCLKUIFRONT
+    DOCKER_URL: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_NAME}
+    BACKEND_URL: https://back.ctsoft-e.ru
+    MSILINK_URL: 'https://storage.yandexcloud.net/demo.ctsoft-e.ru/ScanCity%20Agent%20Installer(demo).msi'
+    APKLINK_URL: 'https://storage.yandexcloud.net/prod-front.it.scancity.ru/CTsoft.ENTERPRiSE.apk'
+    ENVFILE: .env
+  extends:
+    - .deploy_tpl
+  only:
+    - prod-release
+
+demo:deploy:
+  stage: deploy
+  image: docker:dind
+  environment:
+    name: demo
+  variables:
+    SSH_URL: ${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}
+    SSH_PRIVATE_KEY: ${DEPLOY_PRIVATE_KEY}
+    SSH_PORT: ${DEPLOY_SSH_PORT}
+    DEPLOY_DIR: /tmp/${CI_COMMIT_SHORT_SHA}/
+    PROJECT_DOMAIN: demo.ctsoft-e.ru
+    PROJECT_CORS_DOMAIN: back.demo.ctsoft-e.ru
+    PROJECT_NAME: SCLKUIFRONT
+    DOCKER_URL: ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_NAME}
+    BACKEND_URL: https://back.demo.ctsoft-e.ru
+    ENVFILE: .env.demo
+  extends:
+    - .deploy_tpl
+  only:
+    - demo

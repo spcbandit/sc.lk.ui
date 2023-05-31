@@ -1,0 +1,459 @@
+<!--region Модальные окна настройки формы и компонента-->
+    <v-overlay
+      :absolute="true"
+      :value="showComponentSetting || showFormSetting"
+    />
+    <v-dialog v-model="showComponentSetting" hide-overlay :attach="true">
+      <v-card class="dialog">
+        <div class="dialog__header">
+          <h2>
+            {{
+              temporaryForm[indexComponent] &&
+              temporaryForm[indexComponent].type
+                ? temporaryForm[indexComponent].type
+                : 'Настройка компонента'
+            }}
+          </h2>
+          <v-btn icon @click="showComponentSetting = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <div
+          v-if="
+            temporaryForm[indexComponent] &&
+            temporaryForm[indexComponent].type === 'Button'
+          "
+          class="dialog__content"
+        >
+          <form style="display: flex; flex-direction: column" action="">
+            <v-text-field
+              v-model="temporaryForm[indexComponent].label"
+              type="text"
+            />
+            <!--<select v-model="temporaryForm[indexComponent].style">-->
+            <!--  <option>semi</option>-->
+            <!--  <option>round</option>-->
+            <!--  <option>none</option>-->
+            <!--</select>-->
+          </form>
+          {{ temporaryForm[indexComponent] }}
+        </div>
+        <div
+          v-if="
+            temporaryForm[indexComponent] &&
+            temporaryForm[indexComponent].type === 'Label'
+          "
+        >
+          <div class="dialog__content">
+            <form style="display: flex; flex-direction: column" action="">
+              <v-text-field
+                v-model="temporaryForm[indexComponent].label"
+                label="Описание"
+                type="text"
+              />
+              <div class="d-flex align-center">
+                <v-btn-toggle
+                  v-model="temporaryForm[indexComponent].labelPosition"
+                  mandatory
+                >
+                  <v-btn value="none">
+                    <v-icon>mdi-window-close</v-icon>
+                  </v-btn>
+                  <v-btn value="left">
+                    <v-icon>mdi-dock-left</v-icon>
+                  </v-btn>
+                  <v-btn value="top">
+                    <v-icon>mdi-dock-top</v-icon>
+                  </v-btn>
+                  <v-btn value="bottom">
+                    <v-icon>mdi-dock-bottom</v-icon>
+                  </v-btn>
+                  <v-btn value="right">
+                    <v-icon>mdi-dock-right</v-icon>
+                  </v-btn>
+                </v-btn-toggle>
+                <v-spacer />
+                <v-btn-toggle
+                  v-model="temporaryForm[indexComponent].fontStyle"
+                  mandatory
+                >
+                  <v-btn value="compact">
+                    <v-icon small>mdi-format-text-variant</v-icon>
+                  </v-btn>
+                  <v-btn value="regular">
+                    <v-icon>mdi-format-text-variant</v-icon>
+                  </v-btn>
+                  <v-btn value="strong">
+                    <v-icon large>mdi-format-text-variant</v-icon>
+                  </v-btn>
+                </v-btn-toggle>
+                <v-spacer />
+                <!--<v-select-->
+                <!--  v-model="-->
+                <!--    temporaryForm[indexComponent].labelPosition-->
+                <!--  "-->
+                <!--  hide-details-->
+                <!--  outlined-->
+                <!--  class="mt-0 mr-5"-->
+                <!--  dense-->
+                <!--  label="Позиция описания"-->
+                <!--  :items="labelPositions"-->
+                <!--  item-text="name"-->
+                <!--  item-value="position"-->
+                <!--/>-->
+                <v-btn-toggle
+                  v-model="temporaryForm[indexComponent].alignment"
+                  mandatory
+                >
+                  <v-btn value="left">
+                    <v-icon>mdi-format-align-left</v-icon>
+                  </v-btn>
+                  <v-btn value="center">
+                    <v-icon>mdi-format-align-center</v-icon>
+                  </v-btn>
+                  <v-btn value="right">
+                    <v-icon>mdi-format-align-right</v-icon>
+                  </v-btn>
+                </v-btn-toggle>
+              </div>
+              <div class="mt-10 d-flex align-center flex-grow-1">
+                <div class="d-flex flex-grow-1">
+                  <v-text-field
+                    v-model="temporaryForm[indexComponent].defaultText"
+                    :disabled="dynamicData"
+                    label="Основной текст"
+                    type="text"
+                  />
+                  <v-switch v-model="dynamicData" class="mx-2" />
+                  <v-text-field
+                    v-model="temporaryForm[indexComponent].sourceData"
+                    :disabled="!dynamicData"
+                    label="Динамические данные"
+                    type="text"
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+          {{ temporaryForm[indexComponent] }}
+        </div>
+        <div class="dialog__footer">
+          <v-btn
+            color="success"
+            @keydown.enter="showComponentSetting = false"
+            @click="showComponentSetting = false"
+          >
+            Сохранить
+          </v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+    <v-dialog
+      v-model="showFormSetting"
+      max-width="600"
+      hide-overlay
+      :attach="true"
+    >
+      <v-card class="dialog">
+        <div class="dialog__header">
+          <h2>Глобальные настройки формы</h2>
+          <v-btn icon @click="showFormSetting = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
+        <div class="dialog__content">
+          <form
+            style="display: flex; flex-direction: column; row-gap: 15px"
+            action=""
+          >
+            <p class="mb-0">Настройки текста:</p>
+            <div class="d-flex align-center form-row">
+              <span
+                class="form-row__label ml-auto"
+                :style="`color: ${formStyle.compactFontColor}; font-size: ${formStyle.compactFontSize}px`"
+              >
+                Мелкий текст:
+              </span>
+              <v-select
+                v-model="formStyle.compactFontSize"
+                :items="primitiveSetting.commonSetting.fontSize"
+                style="max-width: 100px"
+                dense
+                suffix="px"
+                outlined
+                hide-details
+                type="text"
+                height="40"
+                class="mt-0"
+              />
+              <v-menu v-model="colorPickerMenu.compactFontColor" left offset-y>
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    v-bind="attrs"
+                    elevation="0"
+                    :color="formStyle.compactFontColor"
+                    v-on="on"
+                  >
+                    <v-row align="center" class="flex-column" justify="center">
+                      <v-icon
+                        :color="getContrast50(formStyle.compactFontColor)"
+                      >
+                        mdi-format-color-text
+                      </v-icon>
+                      <v-sheet
+                        tile
+                        style="margin-top: -4px"
+                        height="4"
+                        width="26"
+                        :color="getContrast50(formStyle.compactFontColor)"
+                      />
+                    </v-row>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-color-picker
+                    v-model="formStyle.compactFontColor"
+                    show-swatches
+                    hide-sliders
+                    hide-canvas
+                    hide-inputs
+                  />
+                </v-card>
+              </v-menu>
+            </div>
+            <div class="d-flex align-center form-row">
+              <span
+                class="form-row__label ml-auto"
+                :style="`color: ${formStyle.regularFontColor}; font-size: ${formStyle.regularFontSize}px`"
+              >
+                Средний текст:
+              </span>
+              <v-select
+                v-model="formStyle.regularFontSize"
+                :items="primitiveSetting.commonSetting.fontSize"
+                style="max-width: 100px"
+                suffix="px"
+                dense
+                outlined
+                hide-details
+                type="text"
+                height="40"
+                class="mt-0"
+              />
+              <v-menu v-model="colorPickerMenu.regularFontColor" left offset-y>
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    v-bind="attrs"
+                    elevation="0"
+                    :color="formStyle.regularFontColor"
+                    v-on="on"
+                  >
+                    <v-row align="center" class="flex-column" justify="center">
+                      <v-icon
+                        :color="getContrast50(formStyle.regularFontColor)"
+                      >
+                        mdi-format-color-text
+                      </v-icon>
+                      <v-sheet
+                        tile
+                        style="margin-top: -4px"
+                        height="4"
+                        width="26"
+                        :color="getContrast50(formStyle.regularFontColor)"
+                      />
+                    </v-row>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-color-picker
+                    v-model="formStyle.regularFontColor"
+                    show-swatches
+                    hide-sliders
+                    hide-canvas
+                    hide-inputs
+                  />
+                </v-card>
+              </v-menu>
+            </div>
+            <div class="d-flex align-center form-row">
+              <span
+                class="form-row__label ml-auto"
+                :style="`color: ${formStyle.strongFontColor}; font-size: ${formStyle.strongFontSize}px`"
+              >
+                Крупный текст:
+              </span>
+              <v-select
+                v-model="formStyle.strongFontSize"
+                :items="primitiveSetting.commonSetting.fontSize"
+                style="max-width: 100px"
+                suffix="px"
+                dense
+                outlined
+                hide-details
+                type="text"
+                height="40"
+                class="mt-0"
+              />
+              <v-menu v-model="colorPickerMenu.strongFontColor" left offset-y>
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    v-bind="attrs"
+                    elevation="0"
+                    :color="formStyle.strongFontColor"
+                    v-on="on"
+                  >
+                    <v-row align="center" class="flex-column" justify="center">
+                      <v-icon :color="getContrast50(formStyle.strongFontColor)">
+                        mdi-format-color-text
+                      </v-icon>
+                      <v-sheet
+                        tile
+                        style="margin-top: -4px"
+                        height="4"
+                        width="26"
+                        :color="getContrast50(formStyle.strongFontColor)"
+                      />
+                    </v-row>
+                    <!--<v-icon-->
+                    <!--  :color="getContrast50(formStyle.compactFontColor)"-->
+                    <!--&gt;-->
+                    <!--  mdi-format-color-fill-->
+                    <!--</v-icon>-->
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-color-picker
+                    v-model="formStyle.strongFontColor"
+                    show-swatches
+                    hide-sliders
+                    hide-canvas
+                    hide-inputs
+                  />
+                </v-card>
+              </v-menu>
+            </div>
+            <v-divider />
+            <p class="mb-0">Настройки кнопок:</p>
+            <div class="d-flex align-center form-row">
+              <div class="form-row__label mr-auto">
+                <v-btn
+                  :tile="formStyle.cornerStyle === 'none'"
+                  :rounded="formStyle.cornerStyle === 'round'"
+                  depressed
+                  :color="formStyle.colorTheme"
+                >
+                  <span
+                    :style="`color: ${getContrast50(formStyle.colorTheme)}`"
+                  >
+                    Кнопка
+                  </span>
+                </v-btn>
+              </div>
+              <v-select
+                v-model="formStyle.cornerStyle"
+                style="max-width: 130px"
+                :items="cornerStyle"
+                :item-text="(item) => item.name"
+                :item-value="(item) => item.value"
+                dense
+                outlined
+                hide-details
+                type="text"
+                height="40"
+                class="mt-0"
+              />
+              <v-menu v-model="colorPickerMenu.colorTheme" left offset-y>
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    v-ripple="false"
+                    height="40"
+                    depressed
+                    retain-focus-on-click
+                    :color="formStyle.colorTheme"
+                    dark
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    <v-icon :color="getContrast50(formStyle.colorTheme)">
+                      mdi-format-color-fill
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-color-picker
+                    v-model="formStyle.colorTheme"
+                    hide-canvas
+                    hide-inputs
+                    hide-sliders
+                    show-swatches
+                  />
+                </v-card>
+              </v-menu>
+            </div>
+            <v-divider />
+            <div class="d-flex align-center form-row">
+              <span class="form-row__label mr-auto">Цвет фона формы:</span>
+              <v-menu
+                v-model="colorPickerMenu.backgroundColor"
+                :close-on-content-click="false"
+                :nudge-width="200"
+                :nudge-left="150"
+                offset-y
+              >
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    height="40"
+                    elevation="0"
+                    style="border: 1px solid #d1d1d1"
+                    :color="formStyle.backgroundColor"
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    <v-icon :color="getContrast50(formStyle.backgroundColor)">
+                      mdi-format-color-fill
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-color-picker
+                    v-model="formStyle.backgroundColor"
+                    hide-canvas
+                    hide-inputs
+                    hide-sliders
+                    show-swatches
+                  />
+                </v-card>
+              </v-menu>
+            </div>
+          </form>
+        </div>
+        <div class="dialog__footer">
+          <v-btn color="success" @click="showFormSetting = false">
+            Сохранить
+          </v-btn>
+          <v-btn color="error" @click="resetForm()">Сбросить</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+    <!--endregion-->
+
+
+<!--:btn-source-data.sync="element.sourceData"-->
+<!--:label.sync="element.label"-->
+<!--:click.sync="element.click"-->
+<!--:label-position.sync="element.labelPosition"-->
+<!--:alignment.sync="element.alignment"-->
+<!--:default-text.sync="element.defaultText"-->
+<!--:appearance.sync="element.appearance"-->
+<!--:grouping.sync="element.grouping"-->
+<!--:font-style.sync="element.fontStyle"-->
+<!--<component-->
+<!--  :is="`SK${element.type}`"-->
+<!--  v-for="element in temporaryForm"-->
+<!--  :key="element.id"-->
+<!--  :style-component="formStyle"-->
+<!--  :text-color="getContrast50(formStyle.colorTheme)"-->
+<!--  :property="element"-->
+<!--  @delItem="delItem(element)"-->
+<!--  @editItem="editItem(element)"-->
+<!--/>-->
